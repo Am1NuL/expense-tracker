@@ -6,6 +6,7 @@ import static com.thesis.expensetracker.model.Transaction.DISCRIMINATOR_COLUMN;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +31,7 @@ public abstract class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "amount")
@@ -51,11 +53,6 @@ public abstract class Transaction {
     @JsonBackReference
     @JoinColumn(name = "wallet_id", nullable = false)
     private Wallet wallet;
-
-//        TODO:
-//    private ??? reccurence;
-//    private String place;
-//    private byte image;
 
     protected abstract TransactionType getType();
 }

@@ -26,6 +26,7 @@ public class Wallet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "name")
@@ -42,4 +43,9 @@ public class Wallet {
     @JsonManagedReference
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "wallet", fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Transaction> transactions = new HashSet<>();
+
+    public void addTransaction(Transaction transaction) {
+        this.transactions.add(transaction);
+        transaction.setWallet(this);
+    }
 }

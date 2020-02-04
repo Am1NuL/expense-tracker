@@ -6,7 +6,9 @@ import lombok.Setter;
 import javax.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.thesis.expensetracker.model.Budget.ENTITY_NAME;
@@ -25,6 +27,7 @@ public class Budget {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     public Long id;
 
     @Column(name = "name")
@@ -47,10 +50,7 @@ public class Budget {
     @JoinColumn(name = "wallet_id", nullable = false)
     private Wallet wallet;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "budget_category_links", joinColumns = {
-            @JoinColumn(name = "budget_id", nullable = false, updatable = false) }, inverseJoinColumns = {
-            @JoinColumn(name = "category_id", nullable = false, updatable = false)
-    })
-    private Set<Category> categories = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 }
