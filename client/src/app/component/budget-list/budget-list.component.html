@@ -1,0 +1,85 @@
+<p-toast [style]="{marginTop: '80px'}"></p-toast>
+
+<h2>Budgets</h2>
+
+<div class="ui-g">
+    <div class="ui-g-6" *ngFor="let budget of budgets">
+        <p-card>
+            <h3 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">{{budget.name}}</h3>
+            <p style="font-family: sans-serif">{{budget.wallet.name}}</p>
+            <br />
+            <h5 style="color: #23a634;">{{budget.amount - budgetSpent.get(budget.id)}}.00 BGN left</h5>
+            <p>From {{budget.amount}}.00 BGN</p>
+            <br />
+            <p-progressBar [value]="budgetSpent.get(budget.id) / budget.amount * 100" class="customProgressBar">
+            </p-progressBar>
+            <p class="first">Start date: {{budget.startDate}}</p>
+            <br/>
+            <p class="second">End date: {{budget.endDate}}</p>
+            <button style="margin-top: 10px;" type="button" (click)="viewBudget(budget.id)" pButton
+                label="View"></button>
+        </p-card>
+    </div>
+    <div class="ui-g-6">
+        <p-card>
+            <p>Take control of your expenses and <br />
+                save more money with budgets!</p>
+            <button style="margin-top: 10px;" type="button" (click)="showDialog()" pButton
+                label="Create a New Budget"></button>
+        </p-card>
+    </div>
+</div>
+
+<p-dialog [(visible)]="display">
+    <p-header>Create New Budget</p-header>
+    <form [formGroup]="addBudgetForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <span style="display: block;">Budget name</span>
+            <input type="text" formControlName="name" class="form-control"
+                [ngClass]="{ 'is-invalid': submitted && f.name.errors }" placeholder="Enter your budget name">
+            <div *ngIf="submitted && f.name.errors" class="invalid-feedback">
+                <div *ngIf="f.name.errors.required">Name is required</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <span style="display: block;">Amount</span>
+            <input type="text" size="30" formControlName="amount" class="form-control"
+                [ngClass]="{ 'is-invalid': submitted && f.amount.errors }" pInputText pKeyFilter="num" name="amount"
+                placeholder="0.00">
+            <div *ngIf="submitted && f.amount.errors" class="invalid-feedback">
+                <div *ngIf="f.amount.errors.required">Amount is required</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <span style="display: block;">Category</span>
+            <p-dropdown [options]="categories" placeholder="Select" formControlName="category" optionLabel="name"
+                [style]="{'width':'100%'}"></p-dropdown>
+        </div>
+        <div class="form-group">
+            <span style="display: block;">Wallet</span>
+            <p-dropdown [options]="wallets" placeholder="Select" formControlName="wallet" optionLabel="name"
+                [style]="{'width':'100%'}"></p-dropdown>
+        </div>
+        <div class="ui-g form-group">
+            <div class="ui-g-12 ui-md-6 form-control">
+                <span style="display: block;">Start Date</span>
+                <p-calendar selectionMode="single" dateFormat="dd-mm-yy" formControlName="startDate" class="form-control" [monthNavigator]="true" [yearNavigator]="true"
+                    yearRange="2000:2030" [ngClass]="{ 'is-invalid': submitted && f.startDate.errors }"></p-calendar>
+                <div *ngIf="submitted && f.startDate.errors" class="invalid-feedback">
+                    <div *ngIf="f.startDate.errors.required">Start Date is required</div>
+                </div>
+            </div>
+            <div class="ui-g-12 ui-md-6 form-control">
+                <span style="display: block;">End Date</span>
+                <p-calendar selectionMode="single" dateFormat="dd-mm-yy" formControlName="endDate" class="form-control" [monthNavigator]="true" [yearNavigator]="true"
+                    yearRange="2000:2030" [ngClass]="{ 'is-invalid': submitted && f.endDate.errors }"></p-calendar>
+                    <div *ngIf="submitted && f.endDate.errors" class="invalid-feedback">
+                        <div *ngIf="f.endDate.errors.required">End Date is required</div>
+                    </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary" type="submit">Create</button>
+        </div>
+    </form>
+</p-dialog>

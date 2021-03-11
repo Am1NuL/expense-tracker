@@ -1,0 +1,164 @@
+<!-- <div class="card my-5">
+  <div class="card-body">
+    <table class="table table-bordered table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Amount</th>
+          <th scope="col">Date</th>
+          <th scope="col">Category</th>
+          
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let transaction of transactions">
+          <td>{{ transaction.id }}</td>
+          <td>{{ transaction.amount }}</td>
+          <td>{{ transaction.date }}</td>
+          <td>{{ transaction.category.name }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div> -->
+
+<p-toast [style]="{marginTop: '80px'}"></p-toast>
+
+<div class="content-section implementation">
+    <p-table #dt [columns]="cols" [value]="transactions" [(selection)]="selectedTransaction" selectionMode="single"
+        (onRowSelect)="onRowSelect($event)">
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th *ngFor="let col of columns">
+                    {{col.header}}
+                </th>
+                <th>Category</th>
+            </tr>
+            <tr>
+                <th *ngFor="let col of columns" [ngSwitch]="col.field">
+                    <input placeholder="Filter" *ngSwitchCase="'amount'" pInputText type="text"
+                        (input)="dt.filter($event.target.value, col.field, col.filterMatchMode)">
+                    <input placeholder="Filter" *ngSwitchCase="'comment'" pInputText type="text"
+                        (input)="dt.filter($event.target.value, col.field, 'contains')">
+                    <p-calendar [(ngModel)]="dateFilters" selectionMode="range" *ngSwitchCase="'date'" dateFormat="dd-mm-yy"
+                        (onSelect)="dt.filter($event, col.field, 'dateRangeFilter')" [monthNavigator]="true"
+                        [yearNavigator]="true" yearRange="2000:2030"></p-calendar>
+                    <!-- <p-dropdown placeholder="Select a month" *ngSwitchCase="'date'" [options]="months"
+                        [(ngModel)]="selectedMonth" [style]="{'width':'100%'}"
+                        (onChange)="dt.filter($event.value + selectedYear, col.field, 'contains')"></p-dropdown>
+                    <p-dropdown placeholder="Select a year" *ngSwitchCase="'date'" [options]="years"
+                        [(ngModel)]="selectedYear" [style]="{'width':'100%'}"
+                        (onChange)="dt.filter(selectedMonth + $event.value, col.field, 'contains')"></p-dropdown> -->
+                </th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr [pSelectableRow]="rowData" [ngClass]="rowData.category.type == 'EXPENSE' ? 'expense' : 'income'">
+                <td *ngFor="let col of columns | myfilter:date"
+                    [ngClass]="rowData.category.type == 'EXPENSE' ? 'expense' : 'income'">
+                    <span [ngStyle]="col.field == 'amount' && {'visibility' : 'visible'} || {'visibility' : 'hidden'}">
+                        {{rowData.category.type == 'EXPENSE' ? '&#8211;' : '+'}}</span>
+                    {{rowData[col.field]}}
+                </td>
+                <td [ngClass]="rowData.category.type == 'EXPENSE' ? 'expense' : 'income'">
+                    {{rowData.category.name}}
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary" let-rowData>
+            <div style="text-align:left">
+                <button type="button" pButton icon="pi pi-file" iconPos="left" label="CSV" (click)="dt.exportCSV()"
+                    style="margin-right: 0.5em;"></button>
+                <button type="button" pButton icon="pi pi-plus" (click)="showDialogToAdd()" label="Add"></button>
+            </div>
+        </ng-template>
+    </p-table>
+
+
+    <p-dialog [(visible)]="display">
+        <p-header>Transaction Details</p-header>
+        <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <span>Amount</span>
+                <input type="text" formControlName="amount" class="form-control">
+            </div>
+            <div class="form-group">
+                <span>Date</span>
+                <p-calendar selectionMode="single" formControlName="date" class="form-control" dateFormat="dd-mm-yy"
+                    [monthNavigator]="true" [yearNavigator]="true" yearRange="2000:2030"></p-calendar>
+            </div>
+            <div class="form-group">
+                <input pInputText id="comment" formControlName="comment" />
+            </div>
+            <div class="form-group">
+                <p-dropdown [options]="categories" placeholder="Select" formControlName="category" optionLabel="name"
+                    [style]="{'width':'100%'}"></p-dropdown>
+            </div>
+            <div class="form-group">
+                <p-dropdown [options]="wallets" placeholder="Select" formControlName="wallet" optionLabel="name"
+                    [style]="{'width':'100%'}"></p-dropdown>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" type="submit">Add</button>
+            </div>
+        </form>
+    </p-dialog>
+
+
+
+    <p-dialog header="Transaction Details" [(visible)]="displayDialog" [responsive]="true" showEffect="fade"
+        [modal]="true" [style]="{width: '300px'}">
+        <div class="ui-g ui-fluid" *ngIf="transaction">
+            <div class="ui-g-12">
+                <div class="ui-g-4">
+                    <label for="amount">Amount</label>
+                </div>
+                <div class="ui-g-8">
+                    <input pInputText id="amount" [(ngModel)]="transaction.amount" />
+                </div>
+            </div>
+            <div class="ui-g-12">
+                <div class="ui-g-4">
+                    <label for="date">Date</label>
+                </div>
+                <div class="ui-g-8">
+                    <!-- <input pInputMask mask="99-99999" [(ngModel)]="transaction.date"> -->
+                    <p-inputMask name="date" [(ngModel)]="transaction.date" ngDefaultControl mask="99-99-9999" placeholder="dd-mm-yyyy"></p-inputMask>
+                </div>
+            </div>
+            <div class="ui-g-12">
+                <div class="ui-g-4">
+                    <label for="comment">Comment</label>
+                </div>
+                <div class="ui-g-8">
+                    <input pInputText id="comment" [(ngModel)]="transaction.comment" />
+                </div>
+            </div>
+            <div class="ui-g-12">
+                <div class="ui-g-4">
+                    <label for="category">Category</label>
+                </div>
+                <div class="ui-g-8">
+                    <p-dropdown [options]="categories" placeholder="Select" [(ngModel)]="transaction.category"
+                        optionLabel="name" [style]="{'width':'100%'}"></p-dropdown>
+                </div>
+            </div>
+            <div class="ui-g-12">
+                <div class="ui-g-4">
+                    <label for="wallet">Wallet</label>
+                </div>
+                <div class="ui-g-8">
+                    <p-dropdown [options]="wallets" placeholder="Select" [(ngModel)]="transaction.wallet"
+                        optionLabel="id" [style]="{'width':'100%'}"></p-dropdown>
+                </div>
+            </div>
+        </div>
+        <p-footer>
+            <div class="ui-dialog-buttonpane ui-helper-clearfix">
+                <button type="button" pButton icon="pi pi-times" (click)="delete()" label="Delete"></button>
+                <button type="button" pButton icon="pi pi-check" (click)="save()" label="Save"></button>
+            </div>
+        </p-footer>
+    </p-dialog>
+</div>

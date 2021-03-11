@@ -1,0 +1,83 @@
+<p-toast [style]="{marginTop: '80px'}"></p-toast>
+
+<h2>Wallets</h2>
+<p-dialog [(visible)]="display">
+    <p-header>Create New Wallet</p-header>
+    <form [formGroup]="addWalletForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <span style="display: block;">Wallet name</span>
+            <input type="text" formControlName="name" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.name.errors }" placeholder="Enter your wallet name">
+            <div *ngIf="submitted && f.name.errors" class="invalid-feedback">
+                <div *ngIf="f.name.errors.required">Name is required</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <span style="display: block;">Starting balance (optional)</span>
+            <input type="text" size="30" formControlName="totalWealth" class="form-control" pInputText pKeyFilter="num"
+                name="totalWealth" placeholder="0.00">
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary" type="submit">Create</button>
+        </div>
+    </form >
+</p-dialog>
+<p-tabMenu [model]="items">
+    <ng-template pTemplate="item" let-item let-i="index">
+        <div style="position: relative; text-align: center; min-width: 10em">
+            <div class="ui-menuitem-icon" [ngClass]="item.icon" style="font-size: 2em"></div>
+            <div class="ui-menuitem-text">
+                {{item.label}} ({{item.amount}} BGN)
+            </div>
+        </div>
+    </ng-template>
+
+</p-tabMenu>
+<button style="margin-top: 5px;" type="button" (click)="showDialog()" pButton label="Add New Wallet"></button>
+
+<br /> <br /> <br /> <br />
+
+<h2>Overview</h2>
+
+<div class="ui-g dashboard-card">
+    <div class="ui-g-6 ui-md-3">
+        <p-card styleClass="overview-box-1">
+            Total Balance<h2 style="color: green;">+{{totalBalance}} BGN</h2>
+        </p-card>
+    </div>
+    <div class="ui-g-6 ui-md-3">
+        <p-card styleClass="overview-box-2">
+            Total Expenses<h2 style="color: red;">-{{totalExpenses}} BGN</h2>
+        </p-card>
+    </div>
+    <div class="ui-g-6 ui-md-3">
+        <p-card styleClass="overview-box-3">
+            Total Income<h2 style="color: green;">+{{totalIncome}} BGN</h2>
+        </p-card>
+    </div>
+    <div class="ui-g-6 ui-md-3">
+        <p-card styleClass="overview-box-4">
+            Groceries<h2>42%</h2>
+        </p-card>
+    </div>
+</div>
+
+<div class="ui-g">
+    <div class="ui-g-12 ui-md-6">
+        <p-card>
+            <p-chart type="line" width="500w" height="300w" [responsive]="false" [data]="monthlyData"></p-chart>
+        </p-card >
+    </div>
+    <div class="ui-g-12 ui-md-6">
+        <p-card>
+            <p-chart type="doughnut" [data]="overallData" width="500w" height="300w" [responsive]=false></p-chart>
+        </p-card>
+    </div>
+</div>
+
+<div class="ui-g">
+    <div class="ui-g-12 ui-md-6">
+        <p-card>
+            <p-chart type="bar" [data]="data"></p-chart>
+        </p-card>
+    </div>
+</div>

@@ -1,0 +1,95 @@
+<p-toast [style]="{marginTop: '80px'}"></p-toast>
+
+<h3>{{budget.name}}</h3>
+<h6>{{budget.wallet.name}}</h6>
+<button style="margin-top: 10px;" type="button" (click)="showDialog()" pButton
+                label="Edit"></button>
+<div class="form-group">
+    <div class="ui-g dashboard-card form-group">
+        <div class="ui-g-6 ui-md-3">
+            <p-card styleClass="overview-box-1">
+                Originally Budgeted<h2 style="color: green;">+{{budget.amount}} BGN</h2>
+            </p-card>
+        </div>
+        <div class="ui-g-6 ui-md-3">
+            <p-card styleClass="overview-box-2">
+                Spent so far<h2 style="color: red;">-{{budgetSpent.get(budget.id)}} BGN</h2>
+            </p-card>
+        </div>
+        <div class="ui-g-6 ui-md-3">
+            <p-card styleClass="overview-box-3">
+                Money left<h2 style="color: green;">+{{budget.amount - budgetSpent.get(budget.id)}} BGN</h2>
+            </p-card>
+        </div>
+        <div class="ui-g-6 ui-md-3">
+            <p-card styleClass="overview-box-4">
+                You can spend<h2>{{(budget.amount - budgetSpent.get(budget.id)) / diff | number:'1.2-2'}} BGN/Day</h2>
+            </p-card>
+        </div>
+    </div>
+    <div class="form-group">
+        <p-card>
+            <h6>Budget progress</h6>
+            <br /> <br />
+            <h5 style="text-align: center;">Keep spending. You can spend <strong>{{(budget.amount - budgetSpent.get(budget.id)) / diff | number:'1.2-2'}} BGN</strong> each day for the rest
+                of the period.</h5>
+            <br /> <br />
+            <p-progressBar [value]="budgetSpent.get(budget.id) / budget.amount * 100" class="customProgressBar"></p-progressBar>
+        </p-card>
+    </div>
+</div>
+
+<p-dialog [(visible)]="display">
+    <p-header>Edit Budget</p-header>
+    <form [formGroup]="editBudgetForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <span style="display: block;">Budget name</span>
+            <input type="text" formControlName="name" class="form-control"
+                [ngClass]="{ 'is-invalid': submitted && f.name.errors }" placeholder="Enter your budget name">
+            <div *ngIf="submitted && f.name.errors" class="invalid-feedback">
+                <div *ngIf="f.name.errors.required">Name is required</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <span style="display: block;">Amount</span>
+            <input type="text" size="30" formControlName="amount" class="form-control"
+                [ngClass]="{ 'is-invalid': submitted && f.amount.errors }" pInputText pKeyFilter="num" name="amount"
+                placeholder="0.00">
+            <div *ngIf="submitted && f.amount.errors" class="invalid-feedback">
+                <div *ngIf="f.amount.errors.required">Amount is required</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <span style="display: block;">Category</span>
+            <p-dropdown [options]="categories" placeholder="Select" formControlName="category" optionLabel="name"
+                [style]="{'width':'100%'}"></p-dropdown>
+        </div>
+        <div class="form-group">
+            <span style="display: block;">Wallet</span>
+            <p-dropdown [options]="wallets" placeholder="Select" formControlName="wallet" optionLabel="name"
+                [style]="{'width':'100%'}"></p-dropdown>
+        </div>
+        <div class="ui-g form-group">
+            <div class="ui-g-12 ui-md-6 form-control">
+                <span style="display: block;">Start Date</span>
+                <p-calendar selectionMode="single" dateFormat="dd-mm-yy" formControlName="startDate" class="form-control" [monthNavigator]="true" [yearNavigator]="true"
+                    yearRange="2000:2030" [ngClass]="{ 'is-invalid': submitted && f.startDate.errors }"></p-calendar>
+                <div *ngIf="submitted && f.startDate.errors" class="invalid-feedback">
+                    <div *ngIf="f.startDate.errors.required">Start Date is required</div>
+                </div>
+            </div>
+            <div class="ui-g-12 ui-md-6 form-control">
+                <span style="display: block;">End Date</span>
+                <p-calendar selectionMode="single" dateFormat="dd-mm-yy" formControlName="endDate" class="form-control" [monthNavigator]="true" [yearNavigator]="true"
+                    yearRange="2000:2030" [ngClass]="{ 'is-invalid': submitted && f.endDate.errors }"></p-calendar>
+                    <div *ngIf="submitted && f.endDate.errors" class="invalid-feedback">
+                        <div *ngIf="f.endDate.errors.required">End Date is required</div>
+                    </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary">Delete</button>
+            <button class="btn btn-primary" type="submit">Save</button>
+        </div>
+    </form>
+</p-dialog>
